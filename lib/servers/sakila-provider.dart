@@ -259,7 +259,7 @@ class SakilaProvider extends ChangeNotifier{
       //print("First data: " + jsonData[0]['title']);
       int limit = 0;
       for (var item in jsonData) {
-        if(limit == 50)
+        if(limit == 100)
           break;
         Film currentFilm = Film();
         currentFilm.film_id = item['film_id'];
@@ -283,6 +283,100 @@ class SakilaProvider extends ChangeNotifier{
     }
     return films;
   }
+
+  Future<List<Film>> getPremieres(int storeId) async {
+    List<Film> films = [];
+    final response = await http.get(_rootUrl + "/film/premiere/${this._currentStore.store_id}");
+    print('GET Premiere Status code:' + response.statusCode.toString());
+    if(response.statusCode == 200){
+      String body = utf8.decode(response.bodyBytes);
+      final jsonData = json.decode(body);
+      //print('All movies: ' + response.body);
+      //print("First data: " + jsonData[0]['title']);
+      for (var item in jsonData) {
+        Film currentFilm = Film();
+        currentFilm.film_id = item['film_id'];
+        currentFilm.title = item['title'];
+        currentFilm.description = item['description'];
+        currentFilm.release_year = item['release_year'];
+        currentFilm.language = item['language'];
+        currentFilm.original_language = item['original_language'];
+        currentFilm.rental_rate = item['rental_rate'];
+        currentFilm.length = item['length'];
+        currentFilm.replacement_cost = item['replacement_cost'];
+        currentFilm.rating = item['rating'];
+        currentFilm.special_features = item['special_features'];
+        currentFilm.quantity = item['quantity'];
+        currentFilm.selected = false;
+        films.add(currentFilm);
+      }
+    }
+    print("enviando premieres");
+    return films;
+  }
+
+  Future<List<Film>> getMostRented(int storeId) async {
+    List<Film> films = [];
+    final response = await http.get(_rootUrl + "/film/mostrented/${this._currentStore.store_id}");
+    print('GET Most Rented Status code:' + response.statusCode.toString());
+    if(response.statusCode == 200){
+      String body = utf8.decode(response.bodyBytes);
+      final jsonData = json.decode(body);
+      //print('All movies: ' + response.body);
+      //print("First data: " + jsonData[0]['title']);
+      for (var item in jsonData) {
+        Film currentFilm = Film();
+        currentFilm.film_id = item['film_id'];
+        currentFilm.title = item['title'];
+        currentFilm.description = item['description'];
+        currentFilm.release_year = item['release_year'];
+        currentFilm.language = item['language'];
+        currentFilm.original_language = item['original_language'];
+        currentFilm.rental_rate = item['rental_rate'];
+        currentFilm.length = item['length'];
+        currentFilm.replacement_cost = item['replacement_cost'];
+        currentFilm.rating = item['rating'];
+        currentFilm.special_features = item['special_features'];
+        currentFilm.quantity = item['quantity'];
+        currentFilm.selected = false;
+        films.add(currentFilm);
+      }
+    }
+    print("enviando most rented");
+    return films;
+  }
+
+  Future<List<Film>> getMostRentedWeekly(int storeId) async {
+    List<Film> films = [];
+    final response = await http.get(_rootUrl + "/film/mostrentedweek/${this._currentStore.store_id}");
+    print('GET Most Rented WEEK Status code:' + response.statusCode.toString());
+    if(response.statusCode == 200){
+      String body = utf8.decode(response.bodyBytes);
+      final jsonData = json.decode(body);
+      //print('All movies: ' + response.body);
+      //print("First data: " + jsonData[0]['title']);
+      for (var item in jsonData) {
+        Film currentFilm = Film();
+        currentFilm.film_id = item['film_id'];
+        currentFilm.title = item['title'];
+        currentFilm.description = item['description'];
+        currentFilm.release_year = item['release_year'];
+        currentFilm.language = item['language'];
+        currentFilm.original_language = item['original_language'];
+        currentFilm.rental_rate = item['rental_rate'];
+        currentFilm.length = item['length'];
+        currentFilm.replacement_cost = item['replacement_cost'];
+        currentFilm.rating = item['rating'];
+        currentFilm.special_features = item['special_features'];
+        currentFilm.quantity = item['quantity'];
+        currentFilm.selected = false;
+        films.add(currentFilm);
+      }
+    }
+    print("enviando most rented WEEK");
+    return films;
+  }
+
 
   Future<Map<String, dynamic>> findFilms(String query) async {
     List<Film> films = [];
@@ -640,6 +734,19 @@ class SakilaProvider extends ChangeNotifier{
       //print(jsonData);
     }
     this._cart.clear();
+
+    // Send Mail
+    final response = await http.post(_rootUrl + "/email",
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic>{
+          "first_name": this._currentUser.first_name,
+          "last_name": this._currentUser.last_name,
+          "email": this._currentUser.email
+        }));
+
+    print("Mail status code: ${response.statusCode}");
     Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => PaymentResponse(title: "Done!", response: "Your payment's been registered successfully!",)), (route) => false);
   }
 

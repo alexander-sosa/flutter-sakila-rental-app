@@ -156,7 +156,6 @@ class _MovieDetailsState extends State<MovieDetails> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("film", style: TextStyle(color: Colors.white),),
                         Text(widget.film.title, style: Theme.of(context).textTheme.headline4.copyWith(color: Colors.white, fontWeight: FontWeight.bold),),
                         SizedBox(height: 15,),
                         Row(

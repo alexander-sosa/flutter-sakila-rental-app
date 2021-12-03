@@ -41,6 +41,7 @@ class _MakePaymentState extends State<MakePayment> {
         onPressed: (){
           setState(() {
             print("Making payment");
+            ScaffoldMessenger.of(context).showSnackBar(snackBar);
             Provider.of<SakilaProvider>(context, listen: false).rentMovies(context);
           });
         },
@@ -111,4 +112,7 @@ class _MakePaymentState extends State<MakePayment> {
       ),
     );
   }
+
+  final snackBar = SnackBar(content: Text('Processing payment... do not quit', style: TextStyle(color: Colors.white),), backgroundColor: Colors.pink,);
+
 }

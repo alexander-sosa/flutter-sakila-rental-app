@@ -1,25 +1,24 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sakila_app/dto/Film.dart';
 import 'package:sakila_app/servers/sakila-provider.dart';
-import 'package:sakila_app/views/cart.dart';
-import 'package:sakila_app/views/most-rented-weekly.dart';
-import 'package:sakila_app/views/most-rented.dart';
-import 'package:sakila_app/views/movie-details.dart';
-import 'package:sakila_app/views/premieres.dart';
 import 'package:sakila_app/views/select-country.dart';
 
+import 'HomePage.dart';
+import 'cart.dart';
 import 'login-signup.dart';
+import 'most-rented-weekly.dart';
+import 'most-rented.dart';
+import 'movie-details.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key key}) : super(key: key);
+class Premieres extends StatefulWidget {
+  const Premieres({Key key}) : super(key: key);
 
   @override
-  _HomePageState createState() => _HomePageState();
+  _PremieresState createState() => _PremieresState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _PremieresState extends State<Premieres> {
   int position = 0;
   Future<List<Film>> films;
   Size size;
@@ -27,7 +26,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     // init data
-    films = Provider.of<SakilaProvider>(context, listen: true).getFilms(1);
+    films = Provider.of<SakilaProvider>(context, listen: true).getPremieres(0);
     size = MediaQuery.of(context).size;
 
     return Scaffold(
@@ -47,20 +46,20 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: FutureBuilder(
-        future: films,
-        builder: (context, snapshot){
-          if(snapshot.hasData){
-            return filmsGrid(snapshot.data);
-          }
-          else if (snapshot.data == null){
+          future: films,
+          builder: (context, snapshot){
+            if(snapshot.hasData){
+              if (snapshot.data.length == 0) {
+                return Center(
+                  child: Text("No movies in results"),
+                );
+              }
+              return filmsGrid(snapshot.data);
+            }
             return Center(
               child: CircularProgressIndicator(),
             );
           }
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        }
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: (){
@@ -99,12 +98,12 @@ class _HomePageState extends State<HomePage> {
           setState(() {
             switch (value) {
               case '0':
-                // tasks = Provider.of<TaskServer>(context, listen: false).getTasks(context);
+              // tasks = Provider.of<TaskServer>(context, listen: false).getTasks(context);
                 break;
               case '1':
-                // todo: create credits
-                //Route route = MaterialPageRoute(builder: (context) => Credits());
-                //Navigator.of(context).push(route);
+              // todo: create credits
+              //Route route = MaterialPageRoute(builder: (context) => Credits());
+              //Navigator.of(context).push(route);
                 break;
               case '4':
                 Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => HomePage()), (route) => false);
@@ -118,6 +117,7 @@ class _HomePageState extends State<HomePage> {
               case '7':
                 Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => MostWeekly()), (route) => false);
                 break;
+
               case '2':
                 Provider.of<SakilaProvider>(context, listen: false).logout();
                 Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => SelectCountry()), (route) => false);
@@ -160,7 +160,7 @@ class _HomePageState extends State<HomePage> {
                 Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => MostWeekly()), (route) => false);
                 break;
               case '1':
-                // todo: create Credits Page
+              // todo: create Credits Page
                 print("Credits in progress...");
                 //tasks = Provider.of<TaskServer>(context, listen: false).getTasks(context);
                 break;
@@ -176,7 +176,7 @@ class _HomePageState extends State<HomePage> {
       padding: const EdgeInsets.all(25.0),
       child: Column(
         children: [
-          Expanded(flex: 1, child: Text("Full Catalog", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.0, color: Colors.pink), textAlign: TextAlign.left,)),
+          Expanded(flex: 1, child: Text("Premieres", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.0, color: Colors.pink), textAlign: TextAlign.left,)),
           Expanded(
             flex: 12,
             child: GridView.builder(
@@ -242,16 +242,16 @@ class _HomePageState extends State<HomePage> {
               color: film.quantity < 1 ? Colors.grey : Colors.pink[100],
             ),
             child: inCart(film.film_id) ?
-              Center(child: Text("In Cart", style: TextStyle(fontWeight: FontWeight.bold),)) :
-              (film.quantity < 1) ?
-              ColorFiltered(
+            Center(child: Text("In Cart", style: TextStyle(fontWeight: FontWeight.bold),)) :
+            (film.quantity < 1) ?
+            ColorFiltered(
                 colorFilter: ColorFilter.mode(
-                  Colors.grey,
-                  BlendMode.saturation
+                    Colors.grey,
+                    BlendMode.saturation
                 ),
                 child: Image.network("https://picsum.photos/id/${film.film_id}/135")
-              )
-              : Image.network("https://picsum.photos/id/${film.film_id}/135", ),
+            )
+                : Image.network("https://picsum.photos/id/${film.film_id}/135", ),
           ),
         ),
         Padding(
@@ -289,10 +289,10 @@ class DataSearch extends SearchDelegate<String>{
   List<Widget> buildActions(BuildContext context) {
     return [
       IconButton(
-        icon: Icon(Icons.clear),
-        onPressed: (){
-          query = "";
-        }
+          icon: Icon(Icons.clear),
+          onPressed: (){
+            query = "";
+          }
       )
     ];
   }
@@ -385,17 +385,17 @@ class DataSearch extends SearchDelegate<String>{
             Navigator.of(context).push(route);
           },
           onLongPress: (){
-              //print("esta tocandome! D:");
-              if(inCart(film.film_id, context)){
-                Provider.of<SakilaProvider>(context, listen: false).deleteFromCart(film.film_id);
-              }
-              else {
-                if(Provider.of<SakilaProvider>(context, listen: false).getCart().length < 4)
-                  Provider.of<SakilaProvider>(context, listen: false).addToCart(film);
-                else
-                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
-              }
-              //print(film.selected);
+            //print("esta tocandome! D:");
+            if(inCart(film.film_id, context)){
+              Provider.of<SakilaProvider>(context, listen: false).deleteFromCart(film.film_id);
+            }
+            else {
+              if(Provider.of<SakilaProvider>(context, listen: false).getCart().length < 4)
+                Provider.of<SakilaProvider>(context, listen: false).addToCart(film);
+              else
+                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+            }
+            //print(film.selected);
           },
           child: Container(
             padding: EdgeInsets.all(5),
@@ -442,7 +442,4 @@ class DataSearch extends SearchDelegate<String>{
   }
 
   final suggestions = ["title=maude", "actor=gina", "title=window&actor=gina"];
-
-
-
 }
